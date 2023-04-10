@@ -1,0 +1,60 @@
+use test01;
+update `test01`.`user`
+SET
+`name`= 'name10'
+WHERE pkey =2;
+
+select * from user1;
+
+drop table user;
+
+create table `user`(
+	pkey int4 not null auto_increment,
+    `name` char(20), #몇 바이트를 생성하고 진행할 예정인가, 처리속도가 높은 게 좋음, 데이터베이스가 자주 접근함, char이 속도가 높음
+    pwd char(150), #비밀번호 자주 접근해야 하는데 너무 높음,,, 이렇게 해야 하는 거 맞을까?
+    birthday date,
+    profile_image varchar(300),#폴더 주소와 파일명을 넣어준다. #C:\Users\DS\.android
+    email varchar(200),
+    primary key (pkey),
+    unique index(pkey)
+);
+CREATE TABLE `user1` 
+(
+	pkey int(4) NOT NULL AUTO_INCREMENT, 
+	`name` char(50), 
+	pwd char(150), 
+	birthday date, 
+	profile_image varchar(300), 
+	email varchar(200), 
+	insert_update datetime DEFAULT now() NOT NULL,
+	update_date datetime NULL, PRIMARY KEY (pkey), UNIQUE INDEX (pkey));
+
+
+SELECT pkey, `name`, pwd, birthday, profile_image, email, insert_update, update_date FROM `user1`;
+INSERT INTO `user1`( `name`, pwd, birthday, email ) VALUES ('name3','pwd3',20000703,'email3');
+INSERT INTO `user1`( `name`, pwd, birthday, email ) VALUES ('name1','pwd1',20110703,'email1');
+INSERT INTO `user1`( `name`, pwd, birthday, email ) VALUES ('name2','pwd2',20230703,'email2');
+
+insert into `user`
+(
+	`name`,pwd,birthday,email #column의 순서
+)
+values 
+(
+	'name3','pwd3',20000703,'email3'  #2000-07-03, 문자형으로 date 형 넣기,column의 순서에 따라 데이터의 입력을 조절
+);
+
+insert into `user`
+(
+	`name`,pwd,birthday,email #column의 순서
+)
+values 
+(
+	'name4','pwd4',20000703,'email4'  #2000-07-03, 문자형으로 date 형 넣기,column의 순서에 따라 데이터의 입력을 조절
+);
+
+delete from `test01`.`user`
+where pkey = 3;
+
+delete from `tAest01`.`user`
+where pkey = 3 or `name` =name3; 
