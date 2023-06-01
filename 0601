@@ -1,0 +1,61 @@
+use homowork;
+
+#1번 게시판 테이블과, 댓글 테이블을 최적화하고 인덱스가 처리된 컬럼과 처리되지 않은 컬럼들을 선택한 이유에 대해 각각 설명하시오.
+
+	## 게시판 테이블
+create index BoardIdx ON board (title ); #제목 최적화 이유 : 게시글은 사용자가 주로 검색하는 항목 중 하나이기 떄문에 최적화를 진행한다면 조금 더 효과를 볼 수 있다.
+create index WriterIdx on board(writer); #작성자 최적화 이유 : 게시글 작성자 역시 사용자가 주로 검색하는 항목 중 하나이다. 사용자는 어떤 사용자가 어떤 글을 작성하였는지 한눈에 알아보기 위해 주로 작성자 검색을 사용한다.
+create index ViewCountIdx on board(view_count); #조회수 최적화 이유 : 조회수는 보통 인기 게시글을 확인하기 위하여 많이 사용한다.
+create index StatusIdx on board(status); #상태 최적화 : 사용자는 게시판의 글 중 특정 상태의 글만 보고 싶은 경우가 있을 수 있으므로 이를 최적화 해주면 더욱 쉽게 결과를 제공해줄 수 있다.
+
+# 최적화 하지 않은 컬럼
+# subject : 게시글의 내용의 경우 최적화를 진행한다면 어떤 내용이 있는지 제공할 수 있겠지만 subject의 크기가 정해지지 않았으므로 진행하지 않기로 한다. 
+
+select * from reply;
+	#댓글 테이블
+create index writerIdx on reply (writer); # 댓글 작성자 : 게시판 댓글을 누가 작성했는지 알기 위해서 작성한다. 어떤 작성자가 어떤 댓글을 썼는지 사용한다.
+create index boardIdIdx on reply (board_id); #게시판 ID : 특정 게시글에 어떤 댓글이 달렸는지 한 눈에 알아보기 위해서 사용한다.
+
+# 최적화 하지 않은 컬럼
+
+#parent_id 부모 댓글 ID : 어떤 부모 댓글에 달렸는지까지 제공해줄 필요는 없을 거 같기 때문에 생략하도록 한다. 이는 사람들의 검색 빈도도 적을 거 같기 때문이다.
+#reply # 댓글 내용 : 내용 자체는 검색하는 사람이 많겠지만 아직 초기 구상 단계이기 때문에 추후에 진행하는 방향으로 생각하도록 한다.
+#status # 댓글 상태 : 댓글 상태만 모아서 제공하는 기능 역시 아직은 필요하지 않다고 생각하기 때문에 추후 사람들의 댓글이 달리는 방향을 보고 결정하는 것이 좋다는 판단이 든다.
+
+#2번 적극적으로 활동하는 유저 순으로 정렬하고 출력
+# 유저이름 게시판글수 댓글수 좋아요수 총개수 
+select * from board;
+select name from user;
+
+SELECT U.name, COUNT( B.pkey) AS board_count, COUNT( R.pkey) AS reply_count, COUNT(L.pkey) AS like_count, COUNT(B.pkey)+COUNT(R.pkey)+COUNT(L.pkey)AS total_count
+FROM `user` U
+LEFT JOIN board B ON U.pkey = B.writer
+LEFT JOIN reply R ON B.pkey = R.board_id
+LEFT JOIN `like` L ON U.pkey = L.user_id
+where U.name is not null
+GROUP BY U.pkey , U.name
+ORDER BY total_count DESC;
+
+
+select * from user; 
+#3번 가입자들의 성별 나이 별 개수 출력하고, 연령, 성별 순으로 정렬  -> 다시 풀고 교수님한테 문제 뭔 뜻인지 물어보기
+
+select U.gender, (year(now())-year(U.birth)) as age 
+from user U
+order by U.gender, age;
+
+#4번 뷰 카운트가 가장 높은 글 중 상위 5개의 글 출력
+# 유저이름, 글 제목, 뷰 카운트, 댓글 수
+select * from board;
+select * from reply;
+
+select U.name, B.title,B.view_count, count(R.reply) as count
+from board B
+left join user U ON U.pkey = B.writer
+left join reply R ON R.board_id=B.pkey
+GROUP BY U.name, B.title, B.view_count
+order by B.view_count desc
+limit 5;
+
+#좋아요를 가장 많이 받은 글 출력
+select 
