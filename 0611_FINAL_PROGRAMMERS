@@ -1,0 +1,10 @@
+#우유와 요거트가 담긴 장바구니
+
+
+SELECT A.CART_ID
+FROM  CART_PRODUCTS A
+INNER JOIN CART_PRODUCTS B ON A.CART_ID = B.CART_ID
+WHERE  A.NAME = 'Yogurt' AND B.NAME='Milk'
+ORDER BY A.CART_ID;
+
+#같은 행을 두개 가져오고 싶으면 -> TABLE을 두개로 만들어버린다. INNER JOIN은 활용
